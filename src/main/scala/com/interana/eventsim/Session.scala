@@ -16,7 +16,7 @@ class Session(var nextEventTimeStamp: Option[LocalDateTime],
               val auth: String,
               val level: String ) {
 
-  val sessionId = Counters.nextSessionId
+  val sessionId = IdGenerator.nextSessionId
   var itemInSession = 0
   var done = false
   var currentState:State = initialStates((auth, level)).randomThing

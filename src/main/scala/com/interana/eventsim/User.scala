@@ -19,7 +19,7 @@ class User(val alpha: Double,
            val stream: OutputStream
           ) extends Serializable with Ordered[User] {
 
-  val userId = Counters.nextUserId
+  val userId = IdGenerator.nextUserId
   var session = new Session(
     Some(Session.pickFirstTimeStamp(startTime, alpha, beta)),
       alpha, beta, initialSessionStates, auth, initialLevel)
@@ -90,8 +90,8 @@ class User(val alpha: Double,
     val showUserDetails = ConfigFromFile.showUserWithState(session.currentState.auth)
     writer.writeStartObject()
     writer.writeNumberField("ts", session.nextEventTimeStamp.get.toInstant(ZoneOffset.UTC)toEpochMilli())
-    writer.writeStringField("userId", if (showUserDetails) userId.toString else "")
-    writer.writeNumberField("sessionId", session.sessionId)
+    writer.writeStringField("userId", if (showUserDetails) userId else "")
+    writer.writeStringField("sessionId", session.sessionId)
     writer.writeStringField("page", session.currentState.page)
     writer.writeStringField("auth", session.currentState.auth)
     writer.writeStringField("method", session.currentState.method)
