@@ -1,4 +1,4 @@
-package com.interana.eventsim
+package io.bigfast.eventsim
 
 object IdGenerator {
   def nextSessionId = java.util.UUID.randomUUID.toString

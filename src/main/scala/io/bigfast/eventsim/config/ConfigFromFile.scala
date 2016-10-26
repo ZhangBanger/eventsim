@@ -1,6 +1,6 @@
-package com.interana.eventsim.config
+package io.bigfast.eventsim.config
 
-import com.interana.eventsim.{Constants, State, WeightedRandomThingGenerator}
+import io.bigfast.eventsim.{Constants, State, WeightedRandomThingGenerator}
 
 import scala.collection.mutable
 import scala.io.Source
@@ -17,28 +17,6 @@ object ConfigFromFile {
   val showUserWithState = new mutable.HashMap[String, Boolean]()
   val levelGenerator = new WeightedRandomThingGenerator[String]()
   val authGenerator = new WeightedRandomThingGenerator[String]()
-
-  // optional config values
-  var alpha:Double = 60.0
-  var beta:Double  = Constants.SECONDS_PER_DAY * 3
-
-  var damping:Double = Constants.DEFAULT_DAMPING
-  var weekendDamping:Double = Constants.DEFAULT_WEEKEND_DAMPING
-  var weekendDampingOffset:Int = Constants.DEFAULT_WEEKEND_DAMPING_OFFSET
-  var weekendDampingScale:Int = Constants.DEFAULT_WEEKEND_DAMPING_SCALE
-  var sessionGap:Int = Constants.DEFAULT_SESSION_GAP
-  var churnedState:Option[String] = None
-  var seed = 0L
-  var newUserAuth:String = Constants.DEFAULT_NEW_USER_AUTH
-  var newUserLevel:String = Constants.DEFAULT_NEW_USER_LEVEL
-
-  var startDate:Option[String] = None
-  var endDate:Option[String] = None
-  var nUsers:Option[Int] = None
-  var firstUserId:Option[Int] = None
-  var growthRate:Option[Double] = None
-  var tag:Option[String] = None
-
   // tags for JSON config file
   val TRANSITIONS = "transitions"
   val NEW_SESSION = "new-session"
@@ -60,20 +38,36 @@ object ConfigFromFile {
   val WEIGHT = "weight"
   val SEED = "seed"
   val SESSION_GAP = "session-gap"
-
   val ALPHA = "alpha"
   val BETA = "beta"
   val DAMPING = "damping"
   val WEEKEND_DAMPING = "weekend-damping"
   val WEEKEND_DAMPING_OFFSET = "weekend-damping-offset"
   val WEEKEND_DAMPING_SCALE = "weekend-damping-scale"
-
   val START_DATE = "start-date"
   val END_DATE = "end-date"
   val N_USERS = "n-users"
   val FIRST_USER_ID = "first-user-id"
   val GROWTH_RATE = "growth-rate"
   val TAG = "tag"
+  // optional config values
+  var alpha: Double = 60.0
+  var beta: Double = Constants.SECONDS_PER_DAY * 3
+  var damping: Double = Constants.DEFAULT_DAMPING
+  var weekendDamping: Double = Constants.DEFAULT_WEEKEND_DAMPING
+  var weekendDampingOffset: Int = Constants.DEFAULT_WEEKEND_DAMPING_OFFSET
+  var weekendDampingScale: Int = Constants.DEFAULT_WEEKEND_DAMPING_SCALE
+  var sessionGap: Int = Constants.DEFAULT_SESSION_GAP
+  var churnedState: Option[String] = None
+  var seed = 0L
+  var newUserAuth: String = Constants.DEFAULT_NEW_USER_AUTH
+  var newUserLevel: String = Constants.DEFAULT_NEW_USER_LEVEL
+  var startDate: Option[String] = None
+  var endDate: Option[String] = None
+  var nUsers: Option[Int] = None
+  var firstUserId: Option[Int] = None
+  var growthRate: Option[Double] = None
+  var tag: Option[String] = None
 
   def configFileLoader(fn: String) = {
 
@@ -196,7 +190,7 @@ object ConfigFromFile {
     val initial = jsonContents.getOrElse(NEW_SESSION,List()).asInstanceOf[List[Any]]
     for (i <- initial) {
       val item = i.asInstanceOf[Map[String,Any]]
-      val weight = item.get(WEIGHT).get.asInstanceOf[Double].toInt
+      val weight = item(WEIGHT).asInstanceOf[Double].toInt
       val stateTuple = readState(item)
       val (_,auth,_,_,level) = stateTuple
       if (!initialStates.contains((auth,level)))
@@ -204,7 +198,7 @@ object ConfigFromFile {
       if (!states.contains(stateTuple))
         throw new Exception("Unkown state found while processing initial states: " + stateTuple.toString())
 
-      initialStates(auth,level).add(states.get(stateTuple).get, weight)
+      initialStates(auth, level).add(states(stateTuple), weight)
     }
 
     // TODO: put in check for initial state probabilities
@@ -212,8 +206,8 @@ object ConfigFromFile {
     val showUserDetails = jsonContents.getOrElse(SHOW_USER_DETAILS,List()).asInstanceOf[List[Any]]
     for (i <- showUserDetails) {
       val item = i.asInstanceOf[Map[String,Any]]
-      val auth = item.get(AUTH).get.asInstanceOf[String]
-      val show     = item.get(SHOW).get.asInstanceOf[Boolean]
+      val auth = item(AUTH).asInstanceOf[String]
+      val show = item(SHOW).asInstanceOf[Boolean]
       showUserWithState += (auth -> show)
     }
 
@@ -236,8 +230,8 @@ object ConfigFromFile {
   }
 
   def readState(m: Map[String,Any]) =
-    (m.get(PAGE).get.asInstanceOf[String],
-     m.get(AUTH).get.asInstanceOf[String],
+    (m(PAGE).asInstanceOf[String],
+      m(AUTH).asInstanceOf[String],
      m.getOrElse(STATUS,"").asInstanceOf[Double].toInt,
      m.getOrElse(METHOD,"").asInstanceOf[String],
      m.getOrElse(LEVEL, "").asInstanceOf[String])

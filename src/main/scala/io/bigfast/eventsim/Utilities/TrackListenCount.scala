@@ -1,4 +1,4 @@
-package com.interana.eventsim.Utilities
+package io.bigfast.eventsim.Utilities
 
 import java.io.PrintWriter
 
@@ -66,11 +66,10 @@ object TrackListenCount  {
         val songTitle = fields(3)
         tracks.put(trackId, (songId, artistName, songTitle))
       } catch {
-        case e: IndexOutOfBoundsException => {
+        case e: IndexOutOfBoundsException =>
           // silently forget the record
           // println("while processing" + t)
           // throw e
-        }
       }
     }
     trackFile.close()

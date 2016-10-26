@@ -1,11 +1,11 @@
-package com.interana.eventsim
+package io.bigfast.eventsim
 
 import java.time.temporal.{ChronoField, ChronoUnit}
-import java.time.{DayOfWeek, Duration, LocalDateTime, LocalDate}
+import java.time.{DayOfWeek, Duration, LocalDate, LocalDateTime}
 
-import com.interana.eventsim.Constants._
-import com.interana.eventsim.config.ConfigFromFile
 import de.jollyday.HolidayManager
+import io.bigfast.eventsim.Constants._
+import io.bigfast.eventsim.config.ConfigFromFile
 import org.apache.commons.math3.random.MersenneTwister
 
 object TimeUtilities {
@@ -14,24 +14,12 @@ object TimeUtilities {
 
   // first implementation: US only
   val holidays = HolidayManager.getInstance()
-  def isHoliday(ld: LocalDate): Boolean = holidays.isHoliday(ld)
-
-  def isWeekend(ld: LocalDate): Boolean = {
-    val dow = ld.getDayOfWeek
-    dow == DayOfWeek.SATURDAY || dow == DayOfWeek.SUNDAY
-  }
-
-  def isWeekendOrHoliday(i: LocalDateTime): Boolean = isWeekendOrHoliday(LocalDate.from(i))
-  def isWeekendOrHoliday(ld: LocalDate): Boolean = isWeekend(ld) || isHoliday(ld)
-
   val rng = new MersenneTwister(Main.seed) // Mersenne Twisters are fast and good enough for fake data
-
-  // If X has a standard uniform distribution, then by the inverse transform sampling method,
-  // Y = − (1/λ) ln(X) has an exponential distribution with (rate) parameter λ
-  // mu = (1 / lambda)
 
   def exponentialRandomValue(mu: Double) = -mu * Math.log(rng.nextDouble())
 
+  def keepThisDate(lastTs: LocalDateTime, newTs: LocalDateTime) =
+    if (weekendDamping(newTs) > 0.0) rng.nextDouble() < 1.0 - weekendDamping(newTs) else true
 
   def weekendDamping(dt: LocalDateTime) = {
     // gradually scale down traffic volume on weekends
@@ -109,22 +97,35 @@ object TimeUtilities {
     }
   }
 
-  def keepThisDate(lastTs: LocalDateTime, newTs: LocalDateTime) =
-    if (weekendDamping(newTs) > 0.0) rng.nextDouble() < 1.0 - weekendDamping(newTs) else true
+  def isWeekendOrHoliday(i: LocalDateTime): Boolean = isWeekendOrHoliday(LocalDate.from(i))
+
+  // If X has a standard uniform distribution, then by the inverse transform sampling method,
+  // Y = − (1/λ) ln(X) has an exponential distribution with (rate) parameter λ
+  // mu = (1 / lambda)
+
+  def isWeekendOrHoliday(ld: LocalDate): Boolean = isWeekend(ld) || isHoliday(ld)
+
+  def isHoliday(ld: LocalDate): Boolean = holidays.isHoliday(ld)
+
+  def isWeekend(ld: LocalDate): Boolean = {
+    val dow = ld.getDayOfWeek
+    dow == DayOfWeek.SATURDAY || dow == DayOfWeek.SUNDAY
+  }
+
+  def standardOffset(ts: LocalDateTime) = warpOffset(ts, THREE_AM, ConfigFromFile.damping)
 
   def warpOffset(ts:LocalDateTime, offsetSeconds: Long, dampingFactor: Double): Int = {
     val s = ts.getLong(ChronoField.SECOND_OF_DAY)
     (dampingFactor * SECONDS_PER_DAY * Math.sin( (s - offsetSeconds) * 2 * Math.PI / SECONDS_PER_DAY)).toInt
   }
 
-  def standardOffset(ts: LocalDateTime) = warpOffset(ts, THREE_AM, ConfigFromFile.damping)
   def standardWarp(ts: LocalDateTime) = ts.plusSeconds(warpOffset(ts, THREE_AM, ConfigFromFile.damping))
+
+  def reverseStandardWarp(ts: LocalDateTime) = ts.minusSeconds(reverseWarpOffset(ts, THREE_AM, ConfigFromFile.damping))
 
   def reverseWarpOffset(ts: LocalDateTime, offsetSeconds: Long, dampingFactor: Double) = {
     val s = ts.getLong(ChronoField.SECOND_OF_DAY)
     (Math.asin(s / (dampingFactor * SECONDS_PER_DAY)) / (2 * Math.PI / SECONDS_PER_DAY ) + offsetSeconds).toInt
   }
-
-  def reverseStandardWarp(ts: LocalDateTime) = ts.minusSeconds(reverseWarpOffset(ts, THREE_AM, ConfigFromFile.damping))
 
 }

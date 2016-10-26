@@ -1,10 +1,10 @@
-package com.interana.eventsim
+package io.bigfast.eventsim
 
 import java.io.{OutputStream, Serializable}
-import java.time.{ZoneOffset, LocalDateTime}
+import java.time.{LocalDateTime, ZoneOffset}
 
 import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory}
-import com.interana.eventsim.config.ConfigFromFile
+import io.bigfast.eventsim.config.ConfigFromFile
 
 import scala.util.parsing.json.JSONObject
 
@@ -20,6 +20,8 @@ class User(val alpha: Double,
           ) extends Serializable with Ordered[User] {
 
   val userId = IdGenerator.nextUserId
+  val writer = User.jsonFactory.createGenerator(stream, JsonEncoding.UTF8)
+  private val EMPTY_MAP = Map()
   var session = new Session(
     Some(Session.pickFirstTimeStamp(startTime, alpha, beta)),
       alpha, beta, initialSessionStates, auth, initialLevel)
@@ -49,8 +51,6 @@ class User(val alpha: Double,
     }
   }
 
-  private val EMPTY_MAP = Map()
-
   def eventString = {
     val showUserDetails = ConfigFromFile.showUserWithState(session.currentState.auth)
     var m = device.+(
@@ -77,12 +77,9 @@ class User(val alpha: Double,
         "length" -> session.currentSong.get._4
         )
 
-    val j = new JSONObject(m)
+    val j = JSONObject(m)
     j.toString()
   }
-
-
-  val writer = User.jsonFactory.createGenerator(stream, JsonEncoding.UTF8)
 
   def writeEvent() = {
     // use Jackson streaming to maximize efficiency
@@ -121,8 +118,6 @@ class User(val alpha: Double,
     writer.flush()
   }
 
-  def tsToString(ts: LocalDateTime) = ts.toString()
-
   def nextEventTimeStampString =
     tsToString(this.session.nextEventTimeStamp.get)
 
@@ -135,6 +130,8 @@ class User(val alpha: Double,
     "sessionId" -> session.sessionId ,
     "userId" -> userId ,
     "currentState" -> session.currentState)
+
+  def tsToString(ts: LocalDateTime) = ts.toString
 }
 
 object User {

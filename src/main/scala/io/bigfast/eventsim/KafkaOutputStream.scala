@@ -1,4 +1,4 @@
-package com.interana.eventsim
+package io.bigfast.eventsim
 
 import java.io.OutputStream
 

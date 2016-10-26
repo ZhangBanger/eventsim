@@ -1,4 +1,4 @@
-package com.interana.eventsim
+package io.bigfast.eventsim
 
 import org.apache.commons.math3.random.RandomGenerator
 
@@ -16,10 +16,11 @@ class State(val t:(String,String,Int,String,String)) {
   var upgrades: Map[State, (Double,Double)] = scala.collection.immutable.ListMap()
   var downgrades: Map[State, (Double,Double)] = scala.collection.immutable.ListMap()
 
-  private def maxP(transitions: Map[State, (Double,Double)]) =
-    if (transitions.nonEmpty) transitions.values.map(_._2).max else 0.0
-
   def maxLateralsP = maxP(laterals)
+
+  def addLateral(s: State, p: Double) = {
+    laterals = addTransition(s, p, laterals)
+  }
 
   private def addTransition(s: State, p: Double, t: Map[State, (Double,Double)]) = {
     val oldMax = this.maxP(t)
@@ -34,11 +35,21 @@ class State(val t:(String,String,Int,String,String)) {
     t.+(s -> newKey)
   }
 
-  def addLateral(s: State, p: Double) = {laterals = addTransition(s,p,laterals)}
-  def addUpgrade(s: State, p: Double) = {laterals = addTransition(s,p,upgrades)}
-  def addDowngrade(s: State, p: Double) = {laterals = addTransition(s,p,downgrades)}
+  private def maxP(transitions: Map[State, (Double, Double)]) =
+    if (transitions.nonEmpty) transitions.values.map(_._2).max else 0.0
 
-  private def inRange(v: Double, s:(State,(Double,Double))) = v >= s._2._1 && v < s._2._2
+  override def toString =
+    "page: " + page + ",  auth: " + auth + ", transitions: " +
+      laterals.foldLeft("")((s: String, t: (State, (Double, Double))) =>
+        (if (s != "") {
+          s + ", "
+        } else {
+          ""
+        }) + t._1.page + "," + t._1.auth + ": " + t._2.toString)
+
+  def addUpgrade(s: State, p: Double) = {laterals = addTransition(s,p,upgrades)}
+
+  def addDowngrade(s: State, p: Double) = {laterals = addTransition(s,p,downgrades)}
 
   def nextState(rng: RandomGenerator) = {
     val x = rng.nextDouble()
@@ -48,6 +59,8 @@ class State(val t:(String,String,Int,String,String)) {
     else
       None
   }
+
+  private def inRange(v: Double, s: (State, (Double, Double))) = v >= s._2._1 && v < s._2._2
 
   def upgrade(rng: RandomGenerator) = {
     val x = rng.nextDouble()
@@ -66,10 +79,5 @@ class State(val t:(String,String,Int,String,String)) {
     else
       None
   }
-
-  override def toString =
-    "page: "  +  page + ",  auth: " + auth + ", transitions: " +
-     laterals.foldLeft("")( (s:String, t:(State, (Double, Double))) =>
-     (if (s != "") {s + ", "} else {""}) + t._1.page + "," + t._1.auth + ": " + t._2.toString)
 
 }

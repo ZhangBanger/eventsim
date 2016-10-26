@@ -1,4 +1,4 @@
-package com.interana.eventsim
+package io.bigfast.eventsim
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -12,17 +12,13 @@ class WeightedRandomThingGenerator[T]  {
   var ready = false
   var totalWeight: Integer = 0
 
+  def add(thing: T, weight: Integer): Unit = add((thing, weight))
+
   def add(t: (T, Integer)): Unit = {
     if (ready)
       throw new RuntimeException("called WeightedRandomThingGenerator.add after use")
     ab += ((t._1, totalWeight))
     totalWeight = totalWeight + t._2
-  }
-
-  def add(thing: T, weight: Integer): Unit = add((thing, weight))
-
-  object tupleSecondValueOrdering extends Ordering[(T, Integer)] {
-    override def compare(x: (T, Integer), y: (T, Integer)): Int = x._2.compareTo(y._2)
   }
 
   def randomThing = {
@@ -37,5 +33,9 @@ class WeightedRandomThingGenerator[T]  {
 
   def mkString =
     a.take(5).foldLeft("First 5 items:\n")((s:String,t:(T,Integer)) => s + "\t" + t.toString() + "\n")
+
+  object tupleSecondValueOrdering extends Ordering[(T, Integer)] {
+    override def compare(x: (T, Integer), y: (T, Integer)): Int = x._2.compareTo(y._2)
+  }
 
 }

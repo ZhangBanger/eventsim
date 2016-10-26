@@ -1,6 +1,6 @@
-package com.interana.eventsim.buildin
+package io.bigfast.eventsim.buildin
 
-import com.interana.eventsim.WeightedRandomThingGenerator
+import io.bigfast.eventsim.WeightedRandomThingGenerator
 
 import scala.io.Source
 

@@ -1,9 +1,9 @@
-package com.interana.eventsim.buildin
+package io.bigfast.eventsim.buildin
 
 import java.io.FileInputStream
 import java.util.zip.GZIPInputStream
 
-import com.interana.eventsim.WeightedRandomThingGenerator
+import io.bigfast.eventsim.WeightedRandomThingGenerator
 
 import scala.collection.mutable
 import scala.io.Source
@@ -18,7 +18,7 @@ object RandomSongGenerator extends WeightedRandomThingGenerator[String] {
   val listenLines = s.getLines()
 
   val trackIdMap = new mutable.HashMap[String,(String,String,Double,Int)]()
-  var i = 0
+  val similarSongs = new mutable.HashMap[String, WeightedRandomThingGenerator[String]]()
   for (ll <- listenLines) {
     if ((i % 1000) == 0)
       System.err.print("\r" + i)
@@ -36,17 +36,16 @@ object RandomSongGenerator extends WeightedRandomThingGenerator[String] {
       trackIdMap.put(trackId,(artist,songName,duration,count))
       this.add(trackId, count)
     } catch {
-      case e: NumberFormatException => {
+      case e: NumberFormatException =>
         println("\n" + ll + "\n")
         throw e
-      }
     }
   }
   System.err.println("\t...done loading song file. " + trackIdMap.size + " tracks loaded.")
   s.close()
 
   System.err.println("Loading similar song file...")
-  val similarSongs = new mutable.HashMap[String, WeightedRandomThingGenerator[String]]()
+  var i = 0
 
   try {
     val ssFis = new FileInputStream("data/similar_songs.csv.gz")
@@ -85,10 +84,11 @@ object RandomSongGenerator extends WeightedRandomThingGenerator[String] {
       System.err.println("Could not load similar song file (don't worry if it's missing)\n")
   }
 
+  def nextSong(): (String, String, String, Double) = nextSong("")
 
   def nextSong(lastTrackId: String): (String,String,String,Double) = {
       val nextTrackId =
-        if (!similarSongs.isEmpty && similarSongs.contains(lastTrackId)) {
+        if (similarSongs.nonEmpty && similarSongs.contains(lastTrackId)) {
           similarSongs(lastTrackId).randomThing
         } else {
           this.randomThing
@@ -96,7 +96,5 @@ object RandomSongGenerator extends WeightedRandomThingGenerator[String] {
       val song = trackIdMap(nextTrackId)
       (nextTrackId,song._1,song._2,song._3)
     }
-
-  def nextSong(): (String, String, String, Double) = nextSong("")
 
 }

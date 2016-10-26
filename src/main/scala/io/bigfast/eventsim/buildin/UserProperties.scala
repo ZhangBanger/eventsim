@@ -1,11 +1,14 @@
-package com.interana.eventsim.buildin
+package io.bigfast.eventsim.buildin
 
-import java.time.{ZoneOffset, LocalDateTime}
+import java.time.{LocalDateTime, ZoneOffset}
 
-import com.interana.eventsim.{Constants, Main, TimeUtilities}
+import io.bigfast.eventsim.{Constants, Main, TimeUtilities}
 
 object UserProperties {
   // utilities for generating random properties for users
+
+  def randomNewProps(dt: LocalDateTime) =
+    randomProps + ("registration" -> dt.toInstant(ZoneOffset.UTC).toEpochMilli)
 
   def randomProps = {
     val secondsSinceRegistration =
@@ -26,8 +29,5 @@ object UserProperties {
       "userAgent" -> RandomUserAgentGenerator.randomThing._1
     )
   }
-
-  def randomNewProps(dt: LocalDateTime) =
-    randomProps + ("registration" -> dt.toInstant(ZoneOffset.UTC).toEpochMilli)
 
 }

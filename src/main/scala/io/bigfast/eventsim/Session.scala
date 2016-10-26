@@ -1,10 +1,10 @@
-package com.interana.eventsim
+package io.bigfast.eventsim
 
 import java.time.LocalDateTime
 
-import com.interana.eventsim.TimeUtilities._
-import com.interana.eventsim.buildin.RandomSongGenerator
-import com.interana.eventsim.config.ConfigFromFile
+import io.bigfast.eventsim.TimeUtilities._
+import io.bigfast.eventsim.buildin.RandomSongGenerator
+import io.bigfast.eventsim.config.ConfigFromFile
 
 /**
  * Object to capture session related calculations and properties

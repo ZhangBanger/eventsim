@@ -1,4 +1,4 @@
-package com.interana.eventsim.buildin
+package io.bigfast.eventsim.buildin
 
 object DeviceProperties {
 
