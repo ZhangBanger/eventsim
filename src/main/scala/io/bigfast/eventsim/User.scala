@@ -20,7 +20,6 @@ class User(val alpha: Double,
           ) extends Serializable with Ordered[User] {
 
   val userId = IdGenerator.nextUserId
-  val writer = User.jsonFactory.createGenerator(stream, JsonEncoding.UTF8)
   private val EMPTY_MAP = Map()
   var session = new Session(
     Some(Session.pickFirstTimeStamp(startTime, alpha, beta)),
@@ -76,46 +75,49 @@ class User(val alpha: Double,
         "song" -> session.currentSong.get._3,
         "length" -> session.currentSong.get._4
         )
+    //CREATE EVENT HERE
 
-    val j = JSONObject(m)
-    j.toString()
+//    val j = JSONObject(m)
+//    j.toString()
   }
 
   def writeEvent() = {
     // use Jackson streaming to maximize efficiency
     // (earlier versions used Scala's std JSON generators, but they were slow)
-    val showUserDetails = ConfigFromFile.showUserWithState(session.currentState.auth)
-    writer.writeStartObject()
-    writer.writeNumberField("ts", session.nextEventTimeStamp.get.toInstant(ZoneOffset.UTC)toEpochMilli())
-    writer.writeStringField("userId", if (showUserDetails) userId else "")
-    writer.writeStringField("sessionId", session.sessionId)
-    writer.writeStringField("page", session.currentState.page)
-    writer.writeStringField("auth", session.currentState.auth)
-    writer.writeStringField("method", session.currentState.method)
-    writer.writeNumberField("status", session.currentState.status)
-    writer.writeStringField("level", session.currentState.level)
-    writer.writeNumberField("itemInSession", session.itemInSession)
-    if (showUserDetails) {
-      props.foreach((p: (String, Any)) => {
-        p._2 match {
-          case _: Long => writer.writeNumberField(p._1, p._2.asInstanceOf[Long])
-          case _: Int => writer.writeNumberField(p._1, p._2.asInstanceOf[Int])
-          case _: Double => writer.writeNumberField(p._1, p._2.asInstanceOf[Double])
-          case _: Float => writer.writeNumberField(p._1, p._2.asInstanceOf[Float])
-          case _: String => writer.writeStringField(p._1, p._2.asInstanceOf[String])
-        }})
-    }
-    if (Main.tag.isDefined) {
-        writer.writeStringField("tag", Main.tag.get)
-    }
-    if (session.currentState.page=="NextSong") {
-      writer.writeStringField("artist", session.currentSong.get._2)
-      writer.writeStringField("song",  session.currentSong.get._3)
-      writer.writeNumberField("length", session.currentSong.get._4)
-    }
-    writer.writeEndObject()
-    writer.writeRaw('\n')
-    writer.flush()
+//    val showUserDetails = ConfigFromFile.showUserWithState(session.currentState.auth)
+//    writer.writeStartObject()
+//    writer.writeNumberField("ts", session.nextEventTimeStamp.get.toInstant(ZoneOffset.UTC)toEpochMilli())
+//    writer.writeStringField("userId", if (showUserDetails) userId else "")
+//    writer.writeStringField("sessionId", session.sessionId)
+//    writer.writeStringField("page", session.currentState.page)
+//    writer.writeStringField("auth", session.currentState.auth)
+//    writer.writeStringField("method", session.currentState.method)
+//    writer.writeNumberField("status", session.currentState.status)
+//    writer.writeStringField("level", session.currentState.level)
+//    writer.writeNumberField("itemInSession", session.itemInSession)
+//    if (showUserDetails) {
+//      props.foreach((p: (String, Any)) => {
+//        p._2 match {
+//          case _: Long => writer.writeNumberField(p._1, p._2.asInstanceOf[Long])
+//          case _: Int => writer.writeNumberField(p._1, p._2.asInstanceOf[Int])
+//          case _: Double => writer.writeNumberField(p._1, p._2.asInstanceOf[Double])
+//          case _: Float => writer.writeNumberField(p._1, p._2.asInstanceOf[Float])
+//          case _: String => writer.writeStringField(p._1, p._2.asInstanceOf[String])
+//        }})
+//    }
+//    if (Main.tag.isDefined) {
+//        writer.writeStringField("tag", Main.tag.get)
+//    }
+//    if (session.currentState.page=="NextSong") {
+//      writer.writeStringField("artist", session.currentSong.get._2)
+//      writer.writeStringField("song",  session.currentSong.get._3)
+//      writer.writeNumberField("length", session.currentSong.get._4)
+//    }
+//    writer.writeEndObject()
+//    writer.writeRaw('\n')
+//    writer.flush()
+    // CALL CREATED EVENT HERE
+
   }
 
   def nextEventTimeStampString =

@@ -13,5 +13,3 @@ libraryDependencies += "org.rogach" %% "scallop" % "0.9.5"
 libraryDependencies += "com.fasterxml.jackson.core" % "jackson-core" % "2.6.1"
 
 libraryDependencies += "com.fasterxml.jackson.core" % "jackson-databind" % "2.6.1"
-
-libraryDependencies += "org.apache.kafka" %% "kafka" % "0.8.2.1"

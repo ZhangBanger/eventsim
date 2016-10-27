@@ -8,7 +8,6 @@ import java.util.Properties
 import io.bigfast.eventsim.Utilities.{SimilarSongParser, TrackListenCount}
 import io.bigfast.eventsim.buildin.{DeviceProperties, UserProperties}
 import io.bigfast.eventsim.config.ConfigFromFile
-import kafka.producer.{Producer, ProducerConfig}
 import org.rogach.scallop.{ScallopConf, ScallopOption}
 
 import scala.collection.mutable
@@ -43,11 +42,8 @@ object Main extends App {
     ConfigFromFile.growthRate
 
   ConfigFromFile.configFileLoader(ConfFromOptions.configFile())
-  val kafkaProducer = if (ConfFromOptions.kafkaBrokerList.isDefined) {
-    val kafkaProperties = new Properties()
-    kafkaProperties.setProperty("metadata.broker.list", ConfFromOptions.kafkaBrokerList.get.get)
-    val producerConfig = new ProducerConfig(kafkaProperties)
-    Some(new Producer[Array[Byte],Array[Byte]](producerConfig))
+  val grpcProducer = if (ConfFromOptions.grpcEndpoint.isDefined) {
+    Some("hi")
   } else None
   val realTime = ConfFromOptions.realTime.get.get
   private val sqrtE = Math.exp(0.5)
@@ -55,8 +51,8 @@ object Main extends App {
 
   def generateEvents() = {
 
-    val out = if (kafkaProducer.nonEmpty) {
-      new KafkaOutputStream(kafkaProducer.get, ConfFromOptions.kafkaTopic.get.get)
+    val out = if (grpcProducer.nonEmpty) {
+      new GRPCOutputStream(grpcProducer.get, ConfFromOptions.streamTopic.get.get)
     } else if (ConfFromOptions.outputFile.isSupplied) {
       new FileOutputStream(ConfFromOptions.outputFile())
     } else {
@@ -194,11 +190,11 @@ object Main extends App {
       descrYes = "verbose output (not implemented yet)", descrNo = "silent mode")
     val outputFile: ScallopOption[String] = trailArg[String]("output-file", required = false, descr = "File name")
 
-    val kafkaTopic: ScallopOption[String] =
-      opt[String]("kafkaTopic", descr = "kafka topic", required = false)
+    val streamTopic: ScallopOption[String] =
+      opt[String]("streamTopic", descr = "stream topic", required = false)
 
-    val kafkaBrokerList: ScallopOption[String] =
-      opt[String]("kafkaBrokerList", descr = "kafka broker list", required = false)
+    val grpcEndpoint: ScallopOption[String] =
+      opt[String]("grpcEndpoint", descr = "grpc api endpoint", required = false)
 
     val generateCounts = toggle("generate-counts", default = Some(false),
       descrYes = "generate listen counts file then stop", descrNo = "run normally")
