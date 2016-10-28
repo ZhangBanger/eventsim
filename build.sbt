@@ -13,3 +13,9 @@ libraryDependencies += "org.rogach" %% "scallop" % "0.9.5"
 libraryDependencies += "com.fasterxml.jackson.core" % "jackson-core" % "2.6.1"
 
 libraryDependencies += "com.fasterxml.jackson.core" % "jackson-databind" % "2.6.1"
+
+libraryDependencies += "com.trueaccord.scalapb" %% "scalapb-runtime" % "0.5.42" % "protobuf"
+
+PB.targets in Compile := Seq(
+  scalapb.gen() -> (sourceManaged in Compile).value
+)
