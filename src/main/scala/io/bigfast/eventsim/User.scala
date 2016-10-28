@@ -1,12 +1,12 @@
 package io.bigfast.eventsim
 
 import java.io.{OutputStream, Serializable}
+import java.nio.ByteBuffer
 import java.time.{LocalDateTime, ZoneOffset}
 
 import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory}
 import io.bigfast.eventsim.config.ConfigFromFile
-
-import scala.util.parsing.json.JSONObject
+import io.bigfast.eventsim.sink.OutputSink
 
 class User(val alpha: Double,
            val beta: Double,
@@ -16,7 +16,7 @@ class User(val alpha: Double,
            val props: Map[String,Any],
            var device: scala.collection.immutable.Map[String,Any],
            val initialLevel: String,
-           val stream: OutputStream
+           val sink: OutputSink[Session]
           ) extends Serializable with Ordered[User] {
 
   val userId = IdGenerator.nextUserId
@@ -50,7 +50,7 @@ class User(val alpha: Double,
     }
   }
 
-  def eventString = {
+  def eventBytes = {
     val showUserDetails = ConfigFromFile.showUserWithState(session.currentState.auth)
     var m = device.+(
       "ts" -> session.nextEventTimeStamp.get.toInstant(ZoneOffset.UTC).toEpochMilli,
@@ -117,6 +117,7 @@ class User(val alpha: Double,
 //    writer.writeRaw('\n')
 //    writer.flush()
     // CALL CREATED EVENT HERE
+//    stream.write(eventBytes)
 
   }
 

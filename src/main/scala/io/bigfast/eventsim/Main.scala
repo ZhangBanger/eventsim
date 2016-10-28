@@ -8,6 +8,7 @@ import java.util.Properties
 import io.bigfast.eventsim.Utilities.{SimilarSongParser, TrackListenCount}
 import io.bigfast.eventsim.buildin.{DeviceProperties, UserProperties}
 import io.bigfast.eventsim.config.ConfigFromFile
+import io.bigfast.eventsim.sink.GRPCOutputSink
 import org.rogach.scallop.{ScallopConf, ScallopOption}
 
 import scala.collection.mutable
@@ -52,7 +53,7 @@ object Main extends App {
   def generateEvents() = {
 
     val out = if (grpcProducer.nonEmpty) {
-      new GRPCOutputStream(grpcProducer.get, ConfFromOptions.streamTopic.get.get)
+      new GRPCOutputSink(grpcProducer.get, ConfFromOptions.streamTopic.get.get)
     } else if (ConfFromOptions.outputFile.isSupplied) {
       new FileOutputStream(ConfFromOptions.outputFile())
     } else {
