@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package io.bigfast;
+
+message Empty {
+}
+
+message Topic {
+    string id = 1;
+}
+
+message UntypedMessage {
+    string id = 1;
+    string topicId = 2;
+    string userId = 3;
+    bytes content = 4;
+}
+
+// The messaging service definition.
+service Messaging {
+    rpc SubscribeTopicUntyped (Topic) returns (stream UntypedMessage) {
+    }
+    rpc PublishGlobalUntyped (stream UntypedMessage) returns (Empty) {
+    }
+
+    rpc CreateTopic (Empty) returns (Topic) {
+    }
+
+    rpc ShutdownSubscribe (Topic) returns (Empty) {
+    }
+}
