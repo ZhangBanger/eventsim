@@ -16,7 +16,7 @@ class User(val alpha: Double,
            val props: Map[String,Any],
            var device: scala.collection.immutable.Map[String,Any],
            val initialLevel: String,
-           val sink: OutputSink[Session]
+           val sink: OutputSink[Event]
           ) extends Serializable with Ordered[User] {
 
   val userId = IdGenerator.nextUserId

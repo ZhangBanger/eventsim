@@ -1,14 +1,13 @@
 package io.bigfast.eventsim
 
-import java.io.FileOutputStream
 import java.time.temporal.ChronoUnit
 import java.time.{Duration, LocalDateTime, ZoneOffset}
-import java.util.Properties
 
 import io.bigfast.eventsim.Utilities.{SimilarSongParser, TrackListenCount}
 import io.bigfast.eventsim.buildin.{DeviceProperties, UserProperties}
 import io.bigfast.eventsim.config.ConfigFromFile
-import io.bigfast.eventsim.sink.GRPCOutputSink
+import io.bigfast.eventsim.sink.{GRPCOutputSink, HTTPOutputSink}
+import io.bigfast.tracking.Event
 import org.rogach.scallop.{ScallopConf, ScallopOption}
 
 import scala.collection.mutable
@@ -54,10 +53,8 @@ object Main extends App {
 
     val out = if (grpcProducer.nonEmpty) {
       new GRPCOutputSink(grpcProducer.get, ConfFromOptions.streamTopic.get.get)
-    } else if (ConfFromOptions.outputFile.isSupplied) {
-      new FileOutputStream(ConfFromOptions.outputFile())
     } else {
-      System.out
+      new HTTPOutputSink[Event]("hostname", "topic")
     }
 
     (0 until nUsers).foreach((_) =>
@@ -141,7 +138,6 @@ object Main extends App {
     System.err.println("")
     System.err.println()
 
-    out.flush()
     out.close()
 
   }
