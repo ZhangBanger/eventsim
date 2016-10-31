@@ -1,12 +1,12 @@
 package io.bigfast.eventsim
 
-import java.io.{OutputStream, Serializable}
-import java.nio.ByteBuffer
+import java.io.Serializable
 import java.time.{LocalDateTime, ZoneOffset}
 
-import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory}
+import com.fasterxml.jackson.core.JsonFactory
 import io.bigfast.eventsim.config.ConfigFromFile
 import io.bigfast.eventsim.sink.OutputSink
+import io.bigfast.tracking.Event
 
 class User(val alpha: Double,
            val beta: Double,
@@ -82,6 +82,10 @@ class User(val alpha: Double,
   }
 
   def writeEvent() = {
+    sink.write(new Event(
+      createdAt = System.currentTimeMillis(),
+      uid = userId
+    ))
     // use Jackson streaming to maximize efficiency
     // (earlier versions used Scala's std JSON generators, but they were slow)
 //    val showUserDetails = ConfigFromFile.showUserWithState(session.currentState.auth)
@@ -124,6 +128,8 @@ class User(val alpha: Double,
   def nextEventTimeStampString =
     tsToString(this.session.nextEventTimeStamp.get)
 
+  def tsToString(ts: LocalDateTime) = ts.toString
+
   def mkString = props.+(
     "alpha" -> alpha,
     "beta" -> beta,
@@ -133,8 +139,6 @@ class User(val alpha: Double,
     "sessionId" -> session.sessionId ,
     "userId" -> userId ,
     "currentState" -> session.currentState)
-
-  def tsToString(ts: LocalDateTime) = ts.toString
 }
 
 object User {

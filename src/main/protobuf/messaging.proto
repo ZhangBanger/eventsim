@@ -2,8 +2,7 @@ syntax = "proto3";
 
 package io.bigfast;
 
-message Empty {
-}
+import "google/protobuf/empty.proto";
 
 message Topic {
     string id = 1;
@@ -20,12 +19,12 @@ message UntypedMessage {
 service Messaging {
     rpc SubscribeTopicUntyped (Topic) returns (stream UntypedMessage) {
     }
-    rpc PublishGlobalUntyped (stream UntypedMessage) returns (Empty) {
+    rpc PublishGlobalUntyped (stream UntypedMessage) returns (google.protobuf.Empty) {
     }
 
-    rpc CreateTopic (Empty) returns (Topic) {
+    rpc CreateTopic (google.protobuf.Empty) returns (Topic) {
     }
 
-    rpc ShutdownSubscribe (Topic) returns (Empty) {
+    rpc ShutdownSubscribe (Topic) returns (google.protobuf.Empty) {
     }
 }
