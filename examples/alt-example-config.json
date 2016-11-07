@@ -7,12 +7,6 @@
  "weekend-damping-scale" : 360,
  "session-gap" : 1800,
  "churned-state" : "Cancelled",
- "show-user-details" : [
-    {"auth" : "Guest", "show" : false},
-    {"auth" : "Logged In", "show" : true},
-    {"auth" : "Logged Out", "show" : false},
-    {"auth" : "Cancelled", "show" : true}
- ],
  "levels" : [{"level":"free","weight":10}, {"level":"paid","weight":2}],
  "auths" : [{"auth":"Guest","weight":0}, {"auth":"Logged In","weight":10}, {"auth":"Logged Out","weight":1}],
  "new-session" : [

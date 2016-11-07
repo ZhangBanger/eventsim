@@ -45,7 +45,6 @@ object ConfigFromFile {
   val NEW_USER_AUTH = "new-user-auth"
   val NEW_USER_LEVEL = "new-user-level"
   val CHURNED_STATE = "churned-state"
-  val SHOW_USER_DETAILS = "show-user-details"
   val PAGE = "page"
   val AUTH = "auth"
   val SHOW = "show"
@@ -208,14 +207,6 @@ object ConfigFromFile {
     }
 
     // TODO: put in check for initial state probabilities
-
-    val showUserDetails = jsonContents.getOrElse(SHOW_USER_DETAILS,List()).asInstanceOf[List[Any]]
-    for (i <- showUserDetails) {
-      val item = i.asInstanceOf[Map[String,Any]]
-      val auth = item.get(AUTH).get.asInstanceOf[String]
-      val show     = item.get(SHOW).get.asInstanceOf[Boolean]
-      showUserWithState += (auth -> show)
-    }
 
     val levels = jsonContents.getOrElse(LEVELS,List()).asInstanceOf[List[Any]]
     for (level <- levels) {
