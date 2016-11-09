@@ -13,6 +13,5 @@ message Event {
 
 // Tracking service definition.
 service Tracking {
-    rpc Track (stream Event) returns (google.protobuf.Empty) {
-    }
+    rpc Track(stream Event) returns (google.protobuf.Empty) {}
 }
